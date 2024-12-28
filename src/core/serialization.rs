@@ -4,7 +4,16 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct ClientRequest {
     pub id: i32,
-    pub method: String,
+    pub method: Method,
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum Method {
+    #[serde(rename = "initialize")]
+    INITIALIZE,
+    #[serde(rename = "initialized")]
+    INITIALIZED,
 }
 
 #[derive(Serialize)]
@@ -40,7 +49,7 @@ mod tests {
 
     #[test]
     fn test_deserialize_client_request() {
-        let result = deserialize_client_request("{\"method\": \"initialize\"}");
-        assert_eq!(result.method, "initialize");
+        let result = deserialize_client_request("{\"id\":1,\"method\": \"initialize\"}");
+        assert_eq!(result.method, Method::INITIALIZE);
     }
 }

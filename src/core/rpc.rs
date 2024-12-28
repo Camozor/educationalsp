@@ -2,9 +2,9 @@ use core::str;
 
 use log::{error, info};
 
-use crate::core::serialization::deserialize_client_request;
+use crate::core::serialization::{deserialize_client_request, ResponseResult, ServerCapabilities};
 
-use super::serialization::{serialize_response, ClientRequest, ResponseMessage};
+use super::serialization::{serialize_response, ClientRequest, Method, ResponseMessage};
 
 pub fn decode(buffer: &[u8], size: usize) -> ClientRequest {
     let message = get_message(&buffer, size);
@@ -53,6 +53,23 @@ pub fn encode(response: &ResponseMessage) -> String {
         "Content-Length: {}\r\n\r\n{}",
         content_length, serialized_response
     )
+}
+
+pub fn handle_request(client_request: &ClientRequest) {
+    if client_request.method == Method::INITIALIZE {
+        info!("Initialize request!");
+        let response = ResponseMessage {
+            id: client_request.id,
+            result: Some(ResponseResult {
+                capabilities: ServerCapabilities {},
+            }),
+        };
+        let encoded_response = encode(&response);
+        println!("{}", encoded_response);
+        info!("initialize response sent: {}", encoded_response);
+    } else {
+        info!("Other request!");
+    }
 }
 
 #[cfg(test)]
