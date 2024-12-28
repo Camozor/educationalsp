@@ -4,7 +4,7 @@ use log::error;
 
 use crate::core::serialization::deserialize_client_request;
 
-use super::serialization::{serialize_response, ClientRequest, Response};
+use super::serialization::{serialize_response, ClientRequest, ResponseMessage};
 
 pub fn decode(buffer: &[u8], size: usize) -> ClientRequest {
     let message = get_message(&buffer, size);
@@ -41,7 +41,7 @@ fn get_content(msg: &str) -> &str {
     splitted[1]
 }
 
-pub fn encode(response: &Response) -> String {
+pub fn encode(response: &ResponseMessage) -> String {
     let serialized_response = serialize_response(&response);
     "".to_string();
 
@@ -55,7 +55,7 @@ pub fn encode(response: &Response) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::serialization::{InitializeParams, ServerCapabilities};
+    use crate::core::serialization::{ResponseResult, ServerCapabilities};
 
     use super::*;
 
@@ -69,15 +69,16 @@ mod tests {
 
     #[test]
     fn test_encode() {
-        let response = Response {
-            jsonrpc: format!("2.0"),
+        let response = ResponseMessage {
             id: 1,
-            method: format!("initialize"),
-            params: InitializeParams {
+            result: Some(ResponseResult {
                 capabilities: ServerCapabilities {},
-            },
+            }),
         };
         let encoded = encode(&response);
-        assert_eq!(encoded, "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"capabilities\":{}}}");
+        assert_eq!(
+            encoded,
+            "Content-Length: 37\r\n\r\n{\"id\":1,\"result\":{\"capabilities\":{}}}"
+        );
     }
 }

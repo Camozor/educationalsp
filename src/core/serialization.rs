@@ -8,16 +8,14 @@ pub struct ClientRequest {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Response {
-    pub jsonrpc: String,
+pub struct ResponseMessage {
     pub id: i32,
-    pub method: String,
-    pub params: InitializeParams,
+    pub result: Option<ResponseResult>,
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct InitializeParams {
+pub struct ResponseResult {
     pub capabilities: ServerCapabilities,
 }
 
@@ -31,7 +29,7 @@ pub fn deserialize_client_request(client_request: &str) -> ClientRequest {
     return result;
 }
 
-pub fn serialize_response(response: &Response) -> String {
+pub fn serialize_response(response: &ResponseMessage) -> String {
     serde_json::to_string(response).expect("Could not serialize response")
 }
 
