@@ -16,7 +16,7 @@ fn main() -> io::Result<()> {
         exit(1);
     }
 
-    info!("Language server started");
+    info!("Language server started!");
     let mut stdin = io::stdin();
 
     loop {

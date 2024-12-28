@@ -9,7 +9,7 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in {
       defaultPackage.${system} =
-        pkgs.mkShell { buildInputs = with pkgs; [ just ]; };
+        pkgs.mkShell { buildInputs = with pkgs; [ just watchexec ]; };
     };
 
 }
