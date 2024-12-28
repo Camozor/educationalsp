@@ -17,7 +17,7 @@ fn main() -> io::Result<()> {
         let size = stdin.read_line(&mut buffer)?;
 
         info!("{}", size);
-        info!("{}", buffer);
+        info!("Content: {}", buffer);
     }
 }
 

@@ -2,8 +2,15 @@ pub fn encode() -> String {
     "".to_string()
 }
 
-pub fn decode(msg: &str) {
-    println!("{}", msg);
+pub fn get_content_length(msg: &str) -> i32 {
+    let splitted: Vec<&str> = msg.split("\r\n\r\n").collect();
+
+    let content_length_header = splitted[0];
+
+    let skip_part_len = "Content-Length: ".len();
+    let length = &content_length_header[skip_part_len..];
+
+    length.parse().unwrap()
 }
 
 #[cfg(test)]
@@ -11,7 +18,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_encode() {
-        assert_eq!(encode(), "");
+    fn test_decode() {
+        assert_eq!(
+            get_content_length("Content-Length: 16\r\n\r\n{\"Testing\":true}"),
+            16
+        );
     }
 }
