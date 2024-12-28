@@ -1,5 +1,10 @@
+use ::core::str;
 use log::info;
-use std::{io, process::exit, time::SystemTime};
+use std::{
+    io::{self, Read},
+    process::exit,
+    time::SystemTime,
+};
 
 pub mod core;
 
@@ -10,14 +15,17 @@ fn main() -> io::Result<()> {
     }
 
     info!("started");
-    let stdin = io::stdin();
+    let mut stdin = io::stdin();
 
     loop {
-        let mut buffer = String::new();
-        let size = stdin.read_line(&mut buffer)?;
+        let mut buffer = vec![];
+        stdin.read(&buffer);
+        let read_bytes = stdin.read_to_end(&mut buffer);
+        println!("Read bytes = {}", read_bytes.unwrap());
 
-        info!("{}", size);
-        info!("Content: {}", buffer);
+        if let Ok(string) = str::from_utf8(&buffer) {
+            info!("{}", string.len());
+        }
     }
 }
 

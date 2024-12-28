@@ -13,6 +13,11 @@ pub fn get_content_length(msg: &str) -> i32 {
     length.parse().unwrap()
 }
 
+pub fn get_content(msg: &str) -> &str {
+    let splitted: Vec<&str> = msg.split("\r\n\r\n").collect();
+    splitted[1]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
