@@ -1,5 +1,5 @@
 use ::core::str;
-use log::info;
+use log::{error, info};
 use std::{
     io::{self, Read},
     process::exit,
@@ -18,13 +18,16 @@ fn main() -> io::Result<()> {
     let mut stdin = io::stdin();
 
     loop {
-        let mut buffer = vec![];
-        stdin.read(&buffer);
-        let read_bytes = stdin.read_to_end(&mut buffer);
-        println!("Read bytes = {}", read_bytes.unwrap());
+        let mut buffer: [u8; 5000] = [0; 5000];
+        let size = stdin.read(&mut buffer);
+
+        match size {
+            Ok(size) => info!("Message size: {}", size),
+            Err(a) => error!("{}", a),
+        }
 
         if let Ok(string) = str::from_utf8(&buffer) {
-            info!("{}", string.len());
+            info!("my string: {}", string);
         }
     }
 }
