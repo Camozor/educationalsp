@@ -1,7 +1,4 @@
-use core::{
-    logger::setup_logger,
-    rpc::{get_content, get_content_length, get_message},
-};
+use core::{logger::setup_logger, rpc::decode};
 use log::{error, info};
 use std::{
     io::{self, Read},
@@ -29,11 +26,11 @@ fn main() -> io::Result<()> {
         }
         let size = size.unwrap();
 
-        let message = get_message(&buffer, size);
-        let content_length = get_content_length(message);
-        info!("Content length: {}", content_length);
-
-        let content = get_content(message);
-        info!("Content: {}", content);
+        let client_request = decode(&buffer, size);
+        if client_request.method == "initialize" {
+            info!("Initialize request!");
+        } else {
+            info!("Other request!");
+        }
     }
 }
