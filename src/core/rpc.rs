@@ -1,5 +1,11 @@
-pub fn encode() -> String {
-    "".to_string()
+use core::str;
+
+pub fn get_message(buffer: &[u8], length: usize) -> &str {
+    let truncated_buffer = &buffer[..length];
+    match str::from_utf8(&truncated_buffer) {
+        Ok(message_str) => message_str,
+        Err(e) => panic!("{}", e),
+    }
 }
 
 pub fn get_content_length(msg: &str) -> i32 {
@@ -7,8 +13,8 @@ pub fn get_content_length(msg: &str) -> i32 {
 
     let content_length_header = splitted[0];
 
-    let skip_part_len = "Content-Length: ".len();
-    let length = &content_length_header[skip_part_len..];
+    let skip_part_length = "Content-Length: ".len();
+    let length = &content_length_header[skip_part_length..];
 
     length.parse().unwrap()
 }
