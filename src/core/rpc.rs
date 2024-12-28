@@ -2,7 +2,9 @@ use core::str;
 
 use log::{error, info};
 
-use crate::core::serialization::{deserialize_client_request, ResponseResult, ServerCapabilities};
+use crate::core::serialization::{
+    deserialize_client_request, InitializeResult, ServerCapabilities,
+};
 
 use super::serialization::{serialize_response, ClientRequest, Method, ResponseMessage};
 
@@ -57,24 +59,38 @@ pub fn encode(response: &ResponseMessage) -> String {
 
 pub fn handle_request(client_request: &ClientRequest) {
     if client_request.method == Method::INITIALIZE {
-        info!("Initialize request!");
-        let response = ResponseMessage {
-            id: client_request.id,
-            result: Some(ResponseResult {
-                capabilities: ServerCapabilities {},
-            }),
-        };
-        let encoded_response = encode(&response);
-        println!("{}", encoded_response);
-        info!("initialize response sent: {}", encoded_response);
+        handle_request_initialize(client_request);
+    } else if client_request.method == Method::INITIALIZED {
+        handle_request_initialized();
     } else {
         info!("Other request!");
     }
 }
 
+fn handle_request_initialize(client_request: &ClientRequest) {
+    info!("Handling initialize");
+    let response = ResponseMessage {
+        id: client_request.id.expect("Initialize message must have id"),
+        result: Some(InitializeResult {
+            capabilities: ServerCapabilities {},
+        }),
+    };
+    send_response(&response);
+}
+
+fn handle_request_initialized() {
+    info!("Handling initialized");
+}
+
+fn send_response(response: &ResponseMessage) {
+    let encoded_response = encode(&response);
+    println!("{}", encoded_response);
+    info!("Response sent: {}", encoded_response);
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::core::serialization::{ResponseResult, ServerCapabilities};
+    use crate::core::serialization::{InitializeResult, ServerCapabilities};
 
     use super::*;
 
@@ -90,7 +106,7 @@ mod tests {
     fn test_encode() {
         let response = ResponseMessage {
             id: 1,
-            result: Some(ResponseResult {
+            result: Some(InitializeResult {
                 capabilities: ServerCapabilities {},
             }),
         };

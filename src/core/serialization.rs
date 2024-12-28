@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ClientRequest {
-    pub id: i32,
+    pub id: Option<i32>,
     pub method: Method,
 }
 
@@ -20,12 +20,12 @@ pub enum Method {
 #[serde(rename_all = "camelCase")]
 pub struct ResponseMessage {
     pub id: i32,
-    pub result: Option<ResponseResult>,
+    pub result: Option<InitializeResult>,
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ResponseResult {
+pub struct InitializeResult {
     pub capabilities: ServerCapabilities,
 }
 
