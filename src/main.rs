@@ -1,4 +1,8 @@
-use core::{logger::setup_logger, rpc::decode};
+use core::{
+    logger::setup_logger,
+    rpc::{decode, encode},
+    serialization::{ResponseMessage, ResponseResult, ServerCapabilities},
+};
 use log::{error, info};
 use std::{
     io::{self, Read},
@@ -29,6 +33,15 @@ fn main() -> io::Result<()> {
         let client_request = decode(&buffer, size);
         if client_request.method == "initialize" {
             info!("Initialize request!");
+            let response = ResponseMessage {
+                id: client_request.id,
+                result: Some(ResponseResult {
+                    capabilities: ServerCapabilities {},
+                }),
+            };
+            let encoded_response = encode(&response);
+            println!("{}", encoded_response);
+            info!("initialize response sent: {}", encoded_response);
         } else {
             info!("Other request!");
         }

@@ -1,6 +1,6 @@
 use core::str;
 
-use log::error;
+use log::{error, info};
 
 use crate::core::serialization::deserialize_client_request;
 
@@ -13,6 +13,8 @@ pub fn decode(buffer: &[u8], size: usize) -> ClientRequest {
     if get_content_length(&message) != i32::try_from(content.len()).unwrap() {
         error!("Message content does not match Content-Length header");
     }
+
+    info!("Content: {}", content);
 
     deserialize_client_request(content)
 }

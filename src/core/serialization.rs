@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ClientRequest {
+    pub id: i32,
     pub method: String,
 }
 
