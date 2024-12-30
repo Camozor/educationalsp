@@ -3,22 +3,33 @@ use core::str;
 use log::{error, info};
 
 use crate::core::serialization::{
-    deserialize_client_request, InitializeResult, ServerCapabilities,
+    deserialize_generic_client_request, HoverClientRequest, InitializeClientRequest,
+    InitializeResult, InitializedClientRequest, ServerCapabilities,
 };
 
 use super::serialization::{serialize_response, ClientRequest, Method, ResponseMessage};
 
-pub fn decode(buffer: &[u8], size: usize) -> ClientRequest {
+pub fn decode(buffer: &[u8], size: usize) -> Box<dyn ClientRequest> {
     let message = get_message(&buffer, size);
-    let content = get_content(message);
+    let client_request = get_content(message);
 
-    if get_content_length(&message) != i32::try_from(content.len()).unwrap() {
+    if get_content_length(&message) != i32::try_from(client_request.len()).unwrap() {
         error!("Message content does not match Content-Length header");
     }
 
-    info!("Content: {}", content);
+    info!("Content: {}", client_request);
 
-    deserialize_client_request(content)
+    let generic_request = deserialize_generic_client_request(client_request);
+
+    match generic_request.method {
+        Method::Initialize => {
+            Box::new(InitializeClientRequest::deserialize_request(client_request))
+        }
+        Method::Initialized => Box::new(InitializedClientRequest::deserialize_request(
+            client_request,
+        )),
+        Method::Hover => Box::new(HoverClientRequest::deserialize_request(client_request)),
+    }
 }
 
 fn get_message(buffer: &[u8], length: usize) -> &str {
@@ -57,34 +68,24 @@ pub fn encode(response: &ResponseMessage) -> String {
     )
 }
 
-pub fn handle_request(client_request: &ClientRequest) {
-    if client_request.method == Method::Initialize {
-        handle_request_initialize(client_request);
-    } else if client_request.method == Method::Initialized {
-        handle_request_initialized();
-    } else if client_request.method == Method::Hover {
-        handle_request_hover(client_request);
-    } else {
-        info!("Other request!");
-    }
-}
-
-fn handle_request_initialize(client_request: &ClientRequest) {
+pub fn handle_request_initialize(client_request: &InitializeClientRequest) {
     info!("Handling initialize");
     let response = ResponseMessage {
         id: client_request.id.expect("Initialize message must have id"),
         result: Some(InitializeResult {
-            capabilities: ServerCapabilities {},
+            capabilities: ServerCapabilities {
+                hover_provider: Some(true),
+            },
         }),
     };
     send_response(&response);
 }
 
-fn handle_request_initialized() {
+pub fn handle_request_initialized() {
     info!("Handling initialized");
 }
 
-fn handle_request_hover(client_request: &ClientRequest) {
+pub fn handle_request_hover(client_request: &HoverClientRequest) {
     info!("Handling hover");
     info!("{:?}", client_request);
 }
@@ -114,13 +115,15 @@ mod tests {
         let response = ResponseMessage {
             id: 1,
             result: Some(InitializeResult {
-                capabilities: ServerCapabilities {},
+                capabilities: ServerCapabilities {
+                    hover_provider: None,
+                },
             }),
         };
         let encoded = encode(&response);
-        assert_eq!(
-            encoded,
-            "Content-Length: 37\r\n\r\n{\"id\":1,\"result\":{\"capabilities\":{}}}"
-        );
+
+        let expected_encoded =
+            "Content-Length: 57\r\n\r\n{\"id\":1,\"result\":{\"capabilities\":{\"hoverProvider\":null}}}";
+        assert_eq!(encoded, expected_encoded);
     }
 }

@@ -1,7 +1,4 @@
-use core::{
-    logger::setup_logger,
-    rpc::{decode, handle_request},
-};
+use core::{logger::setup_logger, rpc::decode};
 use log::{error, info};
 use std::{
     io::{self, Read},
@@ -30,6 +27,6 @@ fn main() -> io::Result<()> {
         let size = size.unwrap();
         let client_request = decode(&buffer, size);
 
-        handle_request(&client_request);
+        client_request.handle();
     }
 }
