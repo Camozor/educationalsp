@@ -9,7 +9,5 @@ just build
 just nvim
 ```
 
-## Run 
-```
-cargo build
-```
+## Non Nix users
+https://nixos.org/
