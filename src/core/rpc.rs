@@ -3,8 +3,9 @@ use core::str;
 use log::{error, info};
 
 use crate::core::serialization::{
-    deserialize_generic_client_request, HoverClientRequest, InitializeClientRequest,
-    InitializeResponseMessage, InitializeResult, InitializedClientRequest, ServerCapabilities,
+    deserialize_generic_client_request, HoverClientRequest, HoverResponseMessage, HoverResult,
+    InitializeClientRequest, InitializeResponseMessage, InitializeResult, InitializedClientRequest,
+    MarkupContent, MarkupKind, ServerCapabilities,
 };
 
 use super::serialization::{ClientRequest, Method, ResponseMessage};
@@ -87,7 +88,17 @@ pub fn handle_request_initialized() {
 
 pub fn handle_request_hover(client_request: &HoverClientRequest) {
     info!("Handling hover");
-    info!("{:?}", client_request);
+    let response = HoverResponseMessage {
+        id: client_request.id.expect("Initialize message must have id"),
+        result: Some(HoverResult {
+            contents: MarkupContent {
+                kind: MarkupKind::Plaintext,
+                value: format!("Hello world"),
+            },
+        }),
+    };
+
+    send_response(&response);
 }
 
 fn send_response(response: &impl ResponseMessage) {

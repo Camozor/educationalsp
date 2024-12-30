@@ -117,7 +117,7 @@ pub struct InitializeResponseMessage {
 
 impl ResponseMessage for InitializeResponseMessage {
     fn serialize_message(&self) -> String {
-        serde_json::to_string(self).expect("Could not serialize InitializeReponseMessage")
+        serde_json::to_string(self).expect("Could not serialize InitializeResponseMessage")
     }
 }
 
@@ -130,6 +130,35 @@ pub struct InitializeResult {
 #[serde(rename_all = "camelCase")]
 pub struct ServerCapabilities {
     pub hover_provider: Option<bool>,
+}
+
+#[derive(Serialize)]
+pub struct HoverResponseMessage {
+    pub id: i32,
+    pub result: Option<HoverResult>,
+}
+
+impl ResponseMessage for HoverResponseMessage {
+    fn serialize_message(&self) -> String {
+        serde_json::to_string(self).expect("Could not serialize HoverResponseMessage")
+    }
+}
+
+#[derive(Serialize)]
+pub struct HoverResult {
+    pub contents: MarkupContent,
+}
+
+#[derive(Serialize)]
+pub struct MarkupContent {
+    pub kind: MarkupKind,
+    pub value: String,
+}
+
+#[derive(Serialize)]
+pub enum MarkupKind {
+    Plaintext,
+    Markdown,
 }
 
 #[cfg(test)]
