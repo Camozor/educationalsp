@@ -58,10 +58,12 @@ pub fn encode(response: &ResponseMessage) -> String {
 }
 
 pub fn handle_request(client_request: &ClientRequest) {
-    if client_request.method == Method::INITIALIZE {
+    if client_request.method == Method::Initialize {
         handle_request_initialize(client_request);
-    } else if client_request.method == Method::INITIALIZED {
+    } else if client_request.method == Method::Initialized {
         handle_request_initialized();
+    } else if client_request.method == Method::Hover {
+        handle_request_hover(client_request);
     } else {
         info!("Other request!");
     }
@@ -80,6 +82,11 @@ fn handle_request_initialize(client_request: &ClientRequest) {
 
 fn handle_request_initialized() {
     info!("Handling initialized");
+}
+
+fn handle_request_hover(client_request: &ClientRequest) {
+    info!("Handling hover");
+    info!("{:?}", client_request);
 }
 
 fn send_response(response: &ResponseMessage) {

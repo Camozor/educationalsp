@@ -1,36 +1,42 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Deserialize, Debug)]
 pub struct ClientRequest {
     pub id: Option<i32>,
     pub method: Method,
+    pub params: Option<ClientRequestParams>,
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
-#[serde(rename_all = "camelCase")]
 pub enum Method {
     #[serde(rename = "initialize")]
-    INITIALIZE,
+    Initialize,
     #[serde(rename = "initialized")]
-    INITIALIZED,
+    Initialized,
+    #[serde(rename = "hover")]
+    Hover,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+#[serde(untagged)]
+pub enum ClientRequestParams {
+    InitializeParams {},
+    HoverParams { text_document: String },
 }
 
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ResponseMessage {
     pub id: i32,
     pub result: Option<InitializeResult>,
 }
 
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct InitializeResult {
     pub capabilities: ServerCapabilities,
 }
 
 #[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ServerCapabilities {}
 
 pub fn deserialize_client_request(client_request: &str) -> ClientRequest {
@@ -50,6 +56,6 @@ mod tests {
     #[test]
     fn test_deserialize_client_request() {
         let result = deserialize_client_request("{\"id\":1,\"method\": \"initialize\"}");
-        assert_eq!(result.method, Method::INITIALIZE);
+        assert_eq!(result.method, Method::Initialize);
     }
 }
