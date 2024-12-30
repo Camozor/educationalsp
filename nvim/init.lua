@@ -1,7 +1,6 @@
-print("Hello NEW config")
 local client = vim.lsp.start_client({
 	name = "educationalsp",
-	cmd = { "/home/camille/code/perso/educationalsp/target/debug/educationalsp" },
+	cmd = { os.getenv("PWD") .. "/target/debug/educationalsp" },
 })
 
 if not client then
