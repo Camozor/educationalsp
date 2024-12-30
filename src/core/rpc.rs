@@ -4,10 +4,10 @@ use log::{error, info};
 
 use crate::core::serialization::{
     deserialize_generic_client_request, HoverClientRequest, InitializeClientRequest,
-    InitializeResult, InitializedClientRequest, ServerCapabilities,
+    InitializeResponseMessage, InitializeResult, InitializedClientRequest, ServerCapabilities,
 };
 
-use super::serialization::{serialize_response, ClientRequest, Method, ResponseMessage};
+use super::serialization::{ClientRequest, Method, ResponseMessage};
 
 pub fn decode(buffer: &[u8], size: usize) -> Box<dyn ClientRequest> {
     let message = get_message(&buffer, size);
@@ -56,8 +56,8 @@ fn get_content(msg: &str) -> &str {
     splitted[1]
 }
 
-pub fn encode(response: &ResponseMessage) -> String {
-    let serialized_response = serialize_response(&response);
+pub fn encode(response: &impl ResponseMessage) -> String {
+    let serialized_response = response.serialize_message();
     "".to_string();
 
     let content_length = serialized_response.bytes().len();
@@ -70,7 +70,7 @@ pub fn encode(response: &ResponseMessage) -> String {
 
 pub fn handle_request_initialize(client_request: &InitializeClientRequest) {
     info!("Handling initialize");
-    let response = ResponseMessage {
+    let response = InitializeResponseMessage {
         id: client_request.id.expect("Initialize message must have id"),
         result: Some(InitializeResult {
             capabilities: ServerCapabilities {
@@ -90,8 +90,8 @@ pub fn handle_request_hover(client_request: &HoverClientRequest) {
     info!("{:?}", client_request);
 }
 
-fn send_response(response: &ResponseMessage) {
-    let encoded_response = encode(&response);
+fn send_response(response: &impl ResponseMessage) {
+    let encoded_response = encode(response);
     println!("{}", encoded_response);
     info!("Response sent: {}", encoded_response);
 }
@@ -112,7 +112,7 @@ mod tests {
 
     #[test]
     fn test_encode() {
-        let response = ResponseMessage {
+        let response = InitializeResponseMessage {
             id: 1,
             result: Some(InitializeResult {
                 capabilities: ServerCapabilities {

@@ -105,10 +105,20 @@ pub struct Position {
     character: u32,
 }
 
+pub trait ResponseMessage {
+    fn serialize_message(&self) -> String;
+}
+
 #[derive(Serialize)]
-pub struct ResponseMessage {
+pub struct InitializeResponseMessage {
     pub id: i32,
     pub result: Option<InitializeResult>,
+}
+
+impl ResponseMessage for InitializeResponseMessage {
+    fn serialize_message(&self) -> String {
+        serde_json::to_string(self).expect("Could not serialize InitializeReponseMessage")
+    }
 }
 
 #[derive(Serialize)]
@@ -120,10 +130,6 @@ pub struct InitializeResult {
 #[serde(rename_all = "camelCase")]
 pub struct ServerCapabilities {
     pub hover_provider: Option<bool>,
-}
-
-pub fn serialize_response(response: &ResponseMessage) -> String {
-    serde_json::to_string(response).expect("Could not serialize response")
 }
 
 #[cfg(test)]
