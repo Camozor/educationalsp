@@ -90,7 +90,19 @@ pub struct InitializedParams {}
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HoverParams {
-    text_document: String,
+    text_document: TextDocumentIdentifier,
+    position: Position,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TextDocumentIdentifier {
+    uri: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Position {
+    line: u32,
+    character: u32,
 }
 
 #[derive(Serialize)]
@@ -128,12 +140,16 @@ mod tests {
     #[test]
     #[ignore = "temp"]
     fn test_deserialize_client_request_method_choosing() {
-        let payload = r#"{"id": 1, "method": "textDocument/hover", "params": {"textDocument": "/home/user/hello.md"}}"#;
+        let payload = r#"{"id": 1, 
+            "method": "textDocument/hover", 
+            "params": {"textDocument": {uri: "file:///home/user/hello.md"},
+                        "position": {"line": 17, "character": 32}
+            }}"#;
         let hover_request = HoverClientRequest::deserialize_request(payload);
 
         assert_eq!(
-            hover_request.params.unwrap().text_document,
-            format!("/home/user/hello.md")
+            hover_request.params.unwrap().text_document.uri,
+            format!("file:///home/user/hello.md")
         );
     }
 }
